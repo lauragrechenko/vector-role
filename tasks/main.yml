@@ -1,0 +1,70 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for vector
+- name: Ensure install directory exists
+  ansible.builtin.file:
+    path: "{{ vector_install_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Ensure bin directory exists
+  ansible.builtin.file:
+    path: "{{ vector_bin_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Ensure data directory exists
+  ansible.builtin.file:
+    path: "{{ vector_data_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Download Vector archive
+  ansible.builtin.get_url:
+    url: "{{ vector_url }}"
+    dest: "{{ vector_archive_path }}"
+    mode: "0644"
+
+- name: Unarchive Vector
+  ansible.builtin.unarchive:
+    src: "{{ vector_archive_path }}"
+    dest: "{{ vector_install_dir }}"
+    remote_src: true
+    creates: "{{ vector_bin_src }}"
+
+- name: Create symlink to vector binary
+  ansible.builtin.file:
+    src: "{{ vector_bin_src }}"
+    dest: "{{ vector_bin_dir }}/vector"
+    state: link
+  notify: Restart vector
+
+- name: Ensure config dir exists
+  ansible.builtin.file:
+    path: "{{ vector_config_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Deploy Vector config
+  ansible.builtin.template:
+    src: "{{ vector_config_template }}"
+    dest: "{{ vector_config_dir }}/vector.toml"
+    mode: "0644"
+  notify: Restart vector
+
+- name: Install systemd unit
+  ansible.builtin.template:
+    src: "vector.service.j2"
+    dest: "/etc/systemd/system/{{ vector_service_name }}.service"
+    mode: "0644"
+  notify: Restart vector
+
+- name: Reload systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Enable and start Vector
+  ansible.builtin.systemd:
+    name: "{{ vector_service_name }}"
+    enabled: true
+    state: started
