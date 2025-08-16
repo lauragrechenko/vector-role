@@ -1,38 +1,80 @@
 Role Name
 =========
 
-A brief description of the role goes here.
+Installs Vector (observability/log pipeline) from a tar archive, deploys a config, and runs it as a systemd service.
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+Ansible ≥ 2.12
+
+OS: EL 8/9
+
+Provide a Vector config template (vector.toml), or set vector_template_local_path.
+
+Ensure the host can reach your sinks/outputs (network, firewall).
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+### Version & download URL
+vector_version: "0.36.0"
+vector_url: "https://packages.timber.io/vector/{{ vector_version }}/vector-{{ vector_version }}-x86_64-unknown-linux-gnu.tar.gz"
+
+### Where to place the downloaded tarball on the target
+vector_archive_path: "/tmp/vector.tar.gz"
+
+### Install prefix and paths
+vector_install_dir: "/opt/vector"
+vector_bin_dir: "{{ vector_install_dir }}/bin"
+vector_config_dir: "/etc/vector"
+vector_data_dir: "/var/lib/vector"
+
+### Name of the directory created by the tarball (adjust if different)
+### Some Vector tarballs extract to:
+###   - vector-x86_64-unknown-linux-gnu
+### Others to:
+###   - vector-{{ vector_version }}-x86_64-unknown-linux-gnu
+### Set this to match the actual top-level directory inside your tarball.
+vector_extracted_dirname: "vector-x86_64-unknown-linux-gnu"
+
+### Full path to the extracted binary (derived from the dirname above)
+vector_bin_src: "{{ vector_install_dir }}/{{ vector_extracted_dirname }}/bin/vector"
+
+### Template to use for config (relative to role or absolute path)
+vector_config_template: "vector.toml.j2"
+
+### Systemd service name
+vector_service_name: "vector"
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+None.
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+```
+- hosts: vector
+  become: true
+  roles:
+    - role: vector
+      vars:
+        vector_url: "https://packages.timber.io/vector/0.39.0/vector-x86_64-unknown-linux-gnu.tar.gz"
+        vector_archive_path: "/tmp/vector-0.39.0.tar.gz"
+        vector_install_dir: "/opt/vector"
+        vector_config_dir: "/etc/vector"
+        vector_data_dir: "/var/lib/vector"
+        vector_template_local_path: "templates/vector.toml.j2"
+```
 
 License
 -------
 
-BSD
+MIT
 
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+Laura
