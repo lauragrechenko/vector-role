@@ -1,9 +1,6 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # defaults file for vector
-# Where to get Vector (set your own URL)
-# vector_url: "https://packages.timber.io/vector/0.38.0/vector-0.38.0-x86_64-unknown-linux-gnu.tar.gz"
-
 vector_version: "0.36.0"
 vector_url: "https://packages.timber.io/vector/{{ vector_version }}/vector-{{ vector_version }}-x86_64-unknown-linux-gnu.tar.gz"
 
@@ -16,14 +13,5 @@ vector_bin_dir: "{{ vector_install_dir }}/bin"
 vector_config_dir: "/etc/vector"
 vector_data_dir: "/var/lib/vector"
 
-# Name of the directory created by the tarball (adjust if different)
-vector_extracted_dirname: "vector-x86_64-unknown-linux-gnu"
-
-# Full path to the extracted binary
-vector_bin_src: "{{ vector_install_dir }}/{{ vector_extracted_dirname }}/bin/vector"
-
-# Template to use for config (can be absolute path or a file in this role’s templates/)
+# Template to use for config
 vector_config_template: "vector.toml.j2"
-
-# Systemd service name
-vector_service_name: "vector"

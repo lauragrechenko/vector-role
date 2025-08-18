@@ -1,3 +1,11 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # vars file for vector
+# Name of the directory created by the tarball
+vector_extracted_dirname: "vector-x86_64-unknown-linux-gnu"
+
+# Full path to the extracted binary
+vector_bin_src: "{{ vector_install_dir }}/{{ vector_extracted_dirname }}/bin/vector"
+
+# Systemd service name
+vector_service_name: "vector"
